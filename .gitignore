@@ -1,0 +1,53 @@
+# React Native
+node_modules/
+npm-debug.log
+yarn-error.log
+yarn-debug.log
+package-lock.json
+yarn.lock
+.buckconfig
+.buckproject
+*.jks
+*.keystore
+android/.gradle/
+android/app/build/
+android/app/src/main/assets/index.android.bundle
+android/app/src/main/res/mipmap-*/ic_launcher.png
+ios/build/
+ios/Pods/
+ios/Podfile.lock
+ios/*.xcodeproj/project.xcworkspace/xcuserdata/
+ios/*.xcodeproj/xcuserdata/
+ios/DerivedData/
+ios/*.xcuserdatad/
+
+# React Native CLI
+*.sublime-project
+*.sublime-workspace
+*.idea/
+.vscode/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# IDE files
+*.swp
+*.swo
+*.DS_Store
+Thumbs.db
+
+# Build artifacts
+*.apk
+*.aab
+*.app
+*.ipa
+
+# Ignore bundled files
+*.bundle
+
+# Do not ignore tests
+# __tests__/
