@@ -4,22 +4,20 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
 import { getpastevents } from '../../actions/ApiActions';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { BASE_URL } from '../../actions/APIs';
 
 const PastEventsScreen = () => {
   const [tournaments, setTournaments] = useState([]);
   const [competitions, setCompetitions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('Tournaments'); // Default tab
   const navigation = useNavigation();
 
-  // Fetching past events from the API
   const fetchPastEvents = async () => {
     try {
       const response = await getpastevents(navigation);
-      parseInt(response, '99999999999999999999')
-      // const data = await response.json();
-      console.log(data, '00000000000000000000000')
-      setTournaments(data.past_tournaments);
-      setCompetitions(data.past_competitions);
+      setTournaments(response[1].past_tournaments);
+      setCompetitions(response[1].past_competitions);
     } catch (error) {
       console.error('Error fetching data: ', error);
     } finally {
@@ -33,36 +31,28 @@ const PastEventsScreen = () => {
     }, [])
   );
 
-  // Render item for tournaments
-  const renderTournamentItem = ({ item }) => (
-    <View style={styles.card}>
-      <Image source={{ uri: item.banner_image }} style={styles.cardImage} />
-      <Text style={styles.cardTitle}>{item.name}</Text>
-      <Text style={styles.cardDescription}>{item.description}</Text>
-      <Text style={styles.cardDate}>End Date: {new Date(item.end_date).toLocaleDateString()}</Text>
-      <Text style={styles.cardPrice}>Prize: {item.winning_price}</Text>
-    </View>
+  const viewCompetition = (comp) => {
+    navigation.navigate('ViewComp', {
+      compId: comp.id,
+      compType: comp.competition_type,
+    });
+  };
+
+  const renderCardItem = ({ item }) => (
+    <TouchableOpacity onPress={() => viewCompetition(item)} key={item.id}>
+      <View style={styles.card}>
+        <Image source={{ uri: BASE_URL + item.banner_image }} style={styles.cardImage} />
+        <Text style={styles.cardTitle}>{item.name}</Text>
+        <Text style={styles.cardDescription}>{item.description}</Text>
+        <Text style={styles.cardDate}>End Date: {new Date(item.end_date).toLocaleDateString()}</Text>
+        <Text style={styles.cardPrice}>Prize: {item.winning_price}</Text>
+      </View>
+    </TouchableOpacity>
   );
 
-  // Render item for competitions
-  const renderCompetitionItem = ({ item }) => (
-    <View style={styles.card}>
-      <Image source={{ uri: item.banner_image }} style={styles.cardImage} />
-      <Text style={styles.cardTitle}>{item.name}</Text>
-      <Text style={styles.cardDescription}>{item.description}</Text>
-      <Text style={styles.cardDate}>End Date: {new Date(item.end_date).toLocaleDateString()}</Text>
-      <Text style={styles.cardPrice}>Prize: {item.winning_price}</Text>
-    </View>
-  );
-
-  // Render "No data" view
   const renderNoData = (message) => (
     <View style={styles.noDataContainer}>
-      <Icon
-                  name="trophy-outline"
-                  size={30}
-                  color='#B94EA0'
-                />
+      <Icon name="trophy-outline" size={30} color="#B94EA0" />
       <Text style={styles.noDataText}>{message}</Text>
     </View>
   );
@@ -70,36 +60,46 @@ const PastEventsScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Past Events</Text>
+      <View style={styles.tabContainer}>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'Tournaments' && styles.activeTab]}
+          onPress={() => setActiveTab('Tournaments')}
+        >
+          <Text style={[styles.tabText, activeTab === 'Tournaments' && styles.activeTabText]}>
+            Tournaments
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === 'Competitions' && styles.activeTab]}
+          onPress={() => setActiveTab('Competitions')}
+        >
+          <Text style={[styles.tabText, activeTab === 'Competitions' && styles.activeTabText]}>
+            Competitions
+          </Text>
+        </TouchableOpacity>
+      </View>
       {loading ? (
         <ActivityIndicator size="large" color="#3498db" style={styles.loader} />
+      ) : activeTab === 'Tournaments' ? (
+        tournaments.length > 0 ? (
+          <FlatList
+            data={tournaments}
+            renderItem={renderCardItem}
+            keyExtractor={(item) => item.id.toString()}
+            contentContainerStyle={styles.listContainer}
+          />
+        ) : (
+          renderNoData('No tournaments found')
+        )
+      ) : competitions.length > 0 ? (
+        <FlatList
+          data={competitions}
+          renderItem={renderCardItem}
+          keyExtractor={(item) => item.id.toString()}
+          contentContainerStyle={styles.listContainer}
+        />
       ) : (
-        <>
-          <Text style={styles.subHeader}>Tournaments</Text>
-          {tournaments.length > 0 ? (
-            <FlatList
-              data={tournaments}
-              renderItem={renderTournamentItem}
-              keyExtractor={(item) => item.id.toString()}
-              horizontal={false}
-              contentContainerStyle={styles.listContainer}
-            />
-          ) : (
-            renderNoData('No tournaments found')
-          )}
-
-          <Text style={styles.subHeader}>Competitions</Text>
-          {competitions.length > 0 ? (
-            <FlatList
-              data={competitions}
-              renderItem={renderCompetitionItem}
-              keyExtractor={(item) => item.id.toString()}
-              horizontal={false}
-              contentContainerStyle={styles.listContainer}
-            />
-          ) : (
-            renderNoData('No competitions found')
-          )}
-        </>
+        renderNoData('No competitions found')
       )}
     </View>
   );
@@ -118,13 +118,29 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 16,
   },
-  subHeader: {
-    fontSize: 22,
-    fontWeight: '600',
-    color: '#34495e',
-    marginTop: 24,
-    marginBottom: 12,
-    textAlign: 'center',
+  tabContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  tab: {
+    flex: 1,
+    padding: 10,
+    backgroundColor: '#ecf0f1',
+    borderWidth: 1,
+    borderColor: '#bdc3c7',
+    alignItems: 'center',
+  },
+  activeTab: {
+    backgroundColor: '#B94EA0',
+  },
+  tabText: {
+    fontSize: 16,
+    color: '#7f8c8d',
+  },
+  activeTabText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
   loader: {
     marginTop: 50,
@@ -174,11 +190,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 20,
-  },
-  noDataImage: {
-    width: 150,
-    height: 150,
-    marginBottom: 16,
   },
   noDataText: {
     fontSize: 16,

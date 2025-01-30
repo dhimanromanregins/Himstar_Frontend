@@ -548,7 +548,6 @@ export const saveTempParticipant = async (navigation, data) => {
 };
 
 export const prizeBreakdown = async (navigation, data) => {
-    console.log(data, '------------------')
     try {
         const token = await getAuthToken();
         const response = await axios.get(`${ENDPOINTS.prizeBreakdown}?id=${data.id}&type=${data.type}`, {

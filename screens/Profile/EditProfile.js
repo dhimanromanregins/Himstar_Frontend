@@ -357,6 +357,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#ccc',
         borderRadius: 8,
+        color:"#000",
         paddingHorizontal: 10,
         backgroundColor: '#fff',
         flexDirection: 'row',

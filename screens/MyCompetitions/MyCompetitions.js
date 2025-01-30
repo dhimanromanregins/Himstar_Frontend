@@ -14,6 +14,7 @@ const MyCompetitions = ({ navigation }) => {
     setRefreshing(true);
     const result = await myCompetitions();
     if (result[0] === 200) {
+      console.log(result[1], '----------')
       setCompetitions(result[1]);
     }
     setLoading(false);
@@ -25,6 +26,7 @@ const MyCompetitions = ({ navigation }) => {
   }, []);
 
   const viewCompetition = (comp) => {
+    console.log(comp, '55555555555555555555555')
     navigation.navigate('ViewComp', { compId: comp.id, compType: comp.competition_type });
   };
 
@@ -45,7 +47,7 @@ const MyCompetitions = ({ navigation }) => {
         <View style={styles.overlayDetails}>
           <Text style={styles.competitionsNameText}>{comp.name}</Text>
           <View style={styles.detailRow}>
-            <Text style={styles.overlayDetailText}>Registration Start: {comp.registration_start_date}</Text>
+            <Text style={styles.overlayDetailText}>Registration Start: {comp.registration_open_date}</Text>
             <Text style={styles.overlayDetailText}>Registration End: {comp.registration_close_date}</Text>
           </View>
           <View style={styles.detailRow}>

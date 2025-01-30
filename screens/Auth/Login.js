@@ -242,6 +242,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     paddingLeft: 10,
     borderRadius: 20,
+    
     backgroundColor: '#fff',
     marginBottom: 15,
     fontFamily: 'DMSans_400Regular',
@@ -268,6 +269,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     paddingLeft: 10,
     paddingRight: 40,
+    color:"#000",
     borderRadius: 20,
     backgroundColor: '#fff',
     marginBottom: 15,

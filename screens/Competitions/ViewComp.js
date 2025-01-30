@@ -11,6 +11,7 @@ import {
   Modal,
   FlatList,
   Platform,
+  Alert,
 } from 'react-native';
 import WebView from 'react-native-webview';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -35,7 +36,6 @@ const ViewComp = ({route, navigation}) => {
 
   const fetchCompetition = async () => {
     const result = await fetchSpecificCompetition(navigation, compId, compType);
-    console.log('+++++++++++++++', result[1]);
     if (result[0] === 200) {
       setCompetition(result[1]);
     } else {
@@ -82,33 +82,43 @@ const ViewComp = ({route, navigation}) => {
     if (competition?.reg_open && competition?.registration_close_date) {
       const interval = setInterval(() => {
         const now = new Date().getTime();
-  
-        const closeDateString = competition?.registration_close_date.replace(' at ', 'T');
-        const closeDate = new Date(closeDateString); 
+
+        const closeDateString = competition?.registration_close_date.replace(
+          ' at ',
+          'T',
+        );
+        const closeDate = new Date(closeDateString);
         const targetDate = closeDate.getTime();
         // Check for invalid date
         if (isNaN(closeDate.getTime())) {
-          console.error('Invalid date format:', competition.registration_close_date);
+          console.error(
+            'Invalid date format:',
+            competition.registration_close_date,
+          );
           clearInterval(interval);
           return;
         }
-  
+
         // Calculate the remaining time
         const distance = targetDate - now;
-  
+
         if (distance < 0) {
           clearInterval(interval);
           setCountdown(null);
         } else {
           const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-          const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-          const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+          const hours = Math.floor(
+            (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
+          );
+          const minutes = Math.floor(
+            (distance % (1000 * 60 * 60)) / (1000 * 60),
+          );
           const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-  
+
           setCountdown(`${days}d ${hours}h ${minutes}m ${seconds}s`);
         }
       }, 1000);
-  
+
       return () => clearInterval(interval); // Cleanup interval on unmount
     }
   }, [competition]);
@@ -227,19 +237,28 @@ const ViewComp = ({route, navigation}) => {
   };
 
   const toLeaderBoard = () => {
-    const compId = competition?.competition_type === 'competition'
-      ? competition?.id
-      : competition?.competition?.id;
-  
-    if (compId) {
-      navigation.navigate('Leaderboard', { compId });
+    console.log(competition, '0000000000000');
+    const startDateStr = competition.start_date;
+
+    const startDate = new Date(startDateStr.replace(' ', 'T')); 
+
+    const currentTime = new Date(); 
+    const compId =
+      competition?.competition_type === 'competition'
+        ? competition?.id
+        : competition?.competition?.id;
+
+    if (
+      compId &&
+      competition.max_participants != competition.remaining_slots &&
+      currentTime >= startDate
+    ) {
+      navigation.navigate('Leaderboard', {compId});
     } else {
       console.error('compId is undefined. Ensure competition data is correct.');
-      // Optionally, show an alert to the user
-      Alert.alert('Error', 'Unable to navigate to the leaderboard. Please try again.');
+      Alert.alert('Message', 'There is no participant in the contest yet');
     }
   };
-  
 
   const handleMediaDownload = async (url, fileName) => {
     try {
@@ -271,21 +290,23 @@ const ViewComp = ({route, navigation}) => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Image
-        source={{
-          uri:
-            competition?.competition_type === 'tournament'
-              ? competition?.competition?.banner_image &&
-                competition?.competition?.banner_image?.includes('media')
-                ? BASE_URL + competition?.competition?.banner_image
-                : competition?.competition?.file_uri
-              : competition?.banner_image &&
-                competition?.banner_image?.includes('media')
-              ? BASE_URL + competition?.banner_image
-              : competition?.file_uri,
-        }}
-        style={styles.bannerImage}
-      />
+      <TouchableOpacity onPress={toLeaderBoard}>
+        <Image
+          source={{
+            uri:
+              competition?.competition_type === 'tournament'
+                ? competition?.competition?.banner_image &&
+                  competition?.competition?.banner_image?.includes('media')
+                  ? BASE_URL + competition?.competition?.banner_image
+                  : competition?.competition?.file_uri
+                : competition?.banner_image &&
+                  competition?.banner_image?.includes('media')
+                ? BASE_URL + competition?.banner_image
+                : competition?.file_uri,
+          }}
+          style={styles.bannerImage}
+        />
+      </TouchableOpacity>
 
       <View style={styles.videoButtonContainer}>
         <TouchableOpacity
@@ -408,12 +429,16 @@ const ViewComp = ({route, navigation}) => {
 
             <View style={styles.textContainer}>
               <Text style={styles.textLabel}>Start Date: </Text>
-              <Text style={styles.textValue}>{competition?.start_date_formatted}</Text>
+              <Text style={styles.textValue}>
+                {competition?.start_date_formatted}
+              </Text>
             </View>
 
             <View style={styles.textContainer}>
               <Text style={styles.textLabel}>End Date: </Text>
-              <Text style={styles.textValue}>{competition?.end_date_formatted}</Text>
+              <Text style={styles.textValue}>
+                {competition?.end_date_formatted}
+              </Text>
             </View>
 
             <View style={styles.textContainer}>
@@ -518,19 +543,27 @@ const ViewComp = ({route, navigation}) => {
               ))}
             </View>
           )}
-
-        {competition?.max_participants != competition?.remaining_slots && <TouchableOpacity
-          style={[styles.registerButton]}
-          onPress={toLeaderBoard}>
-          <Text style={styles.registerButtonText}>Leaderboard</Text>
-        </TouchableOpacity>}
-
         {competition?.reg_open && (
           <TouchableOpacity
             style={[styles.registerButton]}
-            onPress={enrollComp}>
+            onPress={() =>
+              competition?.is_done
+                ? navigation.navigate('Leaderboard', {
+                    compId:
+                      competition?.competition_type === 'competition'
+                        ? competition?.id
+                        : competition?.competition?.id,
+                  })
+                : competition?.is_participated
+                ? navigateVideoPreview()
+                : videoUpload()
+            }>
             <Text style={styles.registerButtonText}>
-              {competition?.is_participated ? 'Complete' : 'Enroll Now'}
+              {competition?.is_done
+                ? 'Leaderboard'
+                : competition?.is_participated
+                ? 'Complete'
+                : 'Enroll Now'}
             </Text>
           </TouchableOpacity>
         )}

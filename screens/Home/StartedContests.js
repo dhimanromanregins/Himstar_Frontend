@@ -8,8 +8,6 @@ import React, {
 import {
   View,
   Text,
-  BackHandler,
-  ToastAndroid,
   Dimensions,
   Animated,
   TouchableOpacity,
@@ -23,7 +21,6 @@ import {
 } from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import Carousel from 'react-native-snap-carousel';
 import {
   getCategories,
   getBanners,
@@ -32,7 +29,6 @@ import {
 } from '../../actions/ApiActions';
 import {MainContext} from '../../others/MyContext';
 import {BASE_URL} from '../../actions/APIs';
-import Video from 'react-native-video';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Easing} from 'react-native-reanimated';
 
@@ -203,28 +199,6 @@ const StartedContests = ({navigation}) => {
   const onClose = () => {
     setModalVisible(false); // Close the modal by setting its visibility to false
   };
-
-  useFocusEffect(
-    React.useCallback(() => {
-      const backAction = () => {
-        if (backPressedOnce) {
-          BackHandler.exitApp();
-          return true;
-        }
-        setBackPressedOnce(true);
-        ToastAndroid.show('Press back again to exit', ToastAndroid.SHORT);
-        setTimeout(() => setBackPressedOnce(false), 2000);
-        return true;
-      };
-
-      const backHandler = BackHandler.addEventListener(
-        'hardwareBackPress',
-        backAction,
-      );
-
-      return () => backHandler.remove();
-    }, [backPressedOnce]),
-  );
 
   const toggleMenu = () => {
     setMenuVisible(!menuVisible);

@@ -1,5 +1,5 @@
-export const BASE_URL = 'http://192.168.1.2:8000';
-export const API_BASE_URL = 'http://192.168.1.2:8000/api';
+export const BASE_URL = 'http://195.110.58.233:8000';
+export const API_BASE_URL = 'http://195.110.58.233:8000/api';
 export const MusicAPI = 'https://deezerdevs-deezer.p.rapidapi.com/search';
 export const MusciAPIKey = '68303a6587msh680563c03abefcdp146c4fjsn5420df37bfb4';
 

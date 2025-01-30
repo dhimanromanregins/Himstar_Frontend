@@ -17,13 +17,6 @@ const LeaderBoard = ({route, navigation}) => {
   const [leaderBoardData, setLeaderBoardData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [userdata, setUserdata] = useState({});
-  const top5Badges = [
-    require('../../assets/images/Group20.png'),
-    require('../../assets/images/Group16.png'),
-    require('../../assets/images/Group18.png'),
-    require('../../assets/images/Group17.png'),
-    require('../../assets/images/Group19.png'),
-  ];
 
   useEffect(() => {
     console.log('userdata>>>', userdata);

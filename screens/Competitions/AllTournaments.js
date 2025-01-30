@@ -6,16 +6,20 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  Modal,
+  ActivityIndicator,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/native'; // Import useNavigation hook
 import {getTournaments} from '../../actions/ApiActions';
 import {BASE_URL} from '../../actions/APIs';
 
+
 const AllTournaments = ({ route }) => {
   const { categoryId } = route.params;
   const [tournaments, setTournaments] = useState([]);
   const navigation = useNavigation(); // Initialize navigation
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     console.log('category>>>>>>>>>>', categoryId);
@@ -25,6 +29,7 @@ const AllTournaments = ({ route }) => {
     const fetchTournaments = async () => {
       setTournaments([]);
       const result = await getTournaments(navigation, categoryId ? categoryId : '');
+      setLoading(false);
       console.log(result, '=========================')
       console.log(result[1], '=====================')
       if (result[0] === 200) {
@@ -34,8 +39,7 @@ const AllTournaments = ({ route }) => {
     };
 
   const viewCompetition = comp => {
-    console.log('Viewing competition:', comp);
-    // Navigate to competition details or perform any action
+    navigation.navigate('ViewComp', { compId: comp.id, compType: comp.competition_type });
   };
 
   return (
@@ -50,7 +54,13 @@ const AllTournaments = ({ route }) => {
       </View>
 
       <ScrollView contentContainerStyle={styles.container}>
-        {tournaments.length > 0 ? (
+        {loading ?
+                          <Modal transparent={true} animationType="fade" visible={loading}>
+                            <View style={styles.loaderContainer}>
+                              <ActivityIndicator size="large" color='#B94EA0' />
+                            </View>
+                          </Modal>
+                        :(tournaments.length > 0 ? (
           tournaments.map(comp => (
             <TouchableOpacity
               key={comp.id}
@@ -109,7 +119,7 @@ const AllTournaments = ({ route }) => {
            No Active Mega Contests Available
            </Text>
          </View>
-        )}
+        ))}
       </ScrollView>
     </View>
   );
@@ -125,6 +135,11 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     margin: 10,
     borderRadius: 5,
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   backButtonText: {
     color: '#fff',

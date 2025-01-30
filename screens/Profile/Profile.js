@@ -158,7 +158,7 @@ const Profile = ({route, navigation}) => {
 
   const renderCompetitions = ({item: comp}) => (
     <TouchableOpacity
-      onPress={() => (!comp.is_close ? viewCompetition(comp) : null)}
+      onPress={() => viewCompetition(comp)}
       style={[
         styles.competitions,
         !comp.is_active && styles.inactiveCompetition,
@@ -662,6 +662,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
+    color:'#000',
     marginBottom: 15,
     textAlign: 'center',
   },
@@ -672,6 +673,7 @@ const styles = StyleSheet.create({
   },
   modalOptionText: {
     fontSize: 16,
+    color:'#000',
     textAlign: 'center',
   },
   modalClose: {

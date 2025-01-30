@@ -160,7 +160,6 @@ const Home = ({navigation}) => {
 
   const fetchCompetitions = async (bannerId = '') => {
     setActiveCompetitions([]);
-    setTournaments([]);
     const result = await getCompetitions(navigation, bannerId);
     console.log('Comps Data:', result);
     if (result[0] === 200) {
@@ -174,7 +173,9 @@ const Home = ({navigation}) => {
   const fetchTournaments = async (bannerId = '') => {
     setTournaments([]);
     const result = await getTournaments(navigation, bannerId);
+    console.log(result[0], '000000000000')
     if (result[0] === 200) {
+      console.log(result[1], '000000000000000000000000000000000000000')
       setTournaments(result[1]);
     }
   };
@@ -568,7 +569,7 @@ const Home = ({navigation}) => {
             </View>
           )}
 
-        <View style={styles.crouselWrapper}>
+        <View>
           <Carousel
             layout="default"
             ref={carouselRef}
@@ -581,6 +582,17 @@ const Home = ({navigation}) => {
             layoutCardOffset={5}
             onSnapToItem={index => setActiveSlide(index)}
           />
+          <View style={styles.pagination}>
+            {banners.map((_, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.dot,
+                  activeSlide === index ? styles.activeDot : styles.inactiveDot,
+                ]}
+              />
+            ))}
+        </View>
         </View>
         {activeCompetitions.length > 0 && (
           <View style={styles.upcomingCompetitionsWrapper}>
@@ -752,6 +764,24 @@ const styles = StyleSheet.create({
   noDataText: {
     color: 'black',
   },
+  pagination: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    // marginTop: 10,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginHorizontal: 5,
+  },
+  activeDot: {
+    backgroundColor: '#B94EA0',
+  },
+  inactiveDot: {
+    backgroundColor: '#D3D3D3',
+  },
   menuProfile: {
     backgroundColor: '#B94EA0',
     zIndex: 1,
@@ -773,13 +803,13 @@ const styles = StyleSheet.create({
   },
   IconButton: {
     position: 'absolute',
-    top: 20,
-    right: "45%",
+    top: 0,
+    right: "40%",
     zIndex: 1,
   },
   logohimstar:{
-    height:50,
-    width:50,
+    height:70,
+    width:70,
   },
   profilePicture: {
     width: 40,
@@ -847,7 +877,7 @@ alignItems:'center',
   },
   filtersWrapper: {
     marginTop: 70,
-    marginBottom: 30,
+    // marginBottom: 30,
     paddingLeft: 15,
     paddingRight: 15,
   },
@@ -869,11 +899,6 @@ alignItems:'center',
   filterTagText: {
     fontSize: 16,
     fontFamily: 'DMSans_400Regular',
-  },
-  carouselWrapper: {
-    marginBottom: 10,
-    paddingLeft: 10,
-    paddingRight: 10, // Reduce or set to 0 to remove right gap
   },
   banner: {
     borderRadius: 10,
@@ -1020,11 +1045,6 @@ alignItems:'center',
     borderRadius: 10,
     overflow: 'hidden', // Ensure video and images fit within rounded borders
   },
-  carouselWrapper: {
-    alignItems: 'center',
-    marginTop: 20,
-  },
-
   videoIconContainer: {
     position: 'absolute',
     top: 10,

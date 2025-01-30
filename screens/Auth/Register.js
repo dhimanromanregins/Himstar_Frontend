@@ -457,6 +457,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     paddingLeft: 10,
     borderRadius: 20,
+    color:"#000",
     backgroundColor: '#fff',
     marginBottom: 15,
     fontFamily: 'DMSans_400Regular',
@@ -491,6 +492,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 30,
+    color:"#000",
     elevation: 4,
     width: '100%', // Full-width input
   },

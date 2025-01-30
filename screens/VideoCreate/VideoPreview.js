@@ -18,7 +18,6 @@ const VideoPreview = ({ route, navigation }) => {
     const screenWidth = Dimensions.get('window').width;
 
     const adjustVideoDimensions = (data) => {
-        console.log('+++++++++++++++');
         const { width, height } = data.naturalSize;
         const screenFinalWidth = height > width ? 300 : screenWidth;
         const aspectRatio = width / height;

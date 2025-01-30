@@ -6,6 +6,8 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  ActivityIndicator,
+  Modal,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/native'; // Import useNavigation hook
@@ -13,33 +15,29 @@ import {getCompetitions} from '../../actions/ApiActions';
 import {BASE_URL} from '../../actions/APIs';
 
 const LiveComps = () => {
-  const [activeCompetitions, setActiveCompetitions] = useState([]);
   const [upcomingCompetitions, setUpcomingCompetitions] = useState([]);
   const navigation = useNavigation(); // Initialize navigation
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchCompetitions();
   }, []);
 
   const fetchCompetitions = async (bannerId = '') => {
-    setActiveCompetitions([]);
     setUpcomingCompetitions([]);
 
     const result = await getCompetitions(navigation, bannerId);
     console.log('Comps Data:', result);
-
+    setLoading(false);
     if (result[0] === 200) {
       const activeComps = result[1]?.active || [];
-      setActiveCompetitions(activeComps);
-
       const upComingComps = result[1]?.upcoming || [];
       setUpcomingCompetitions(upComingComps);
     }
   };
 
   const viewCompetition = comp => {
-    console.log('Viewing competition:', comp);
-    // Navigate to competition details or perform any action
+    navigation.navigate('ViewComp', { compId: comp.id, compType: comp.competition_type });
   };
 
   return (
@@ -54,7 +52,14 @@ const LiveComps = () => {
       </View>
 
       <ScrollView contentContainerStyle={styles.container}>
-        {upcomingCompetitions.length > 0 ? (
+        {loading ?
+          <Modal transparent={true} animationType="fade" visible={loading}>
+            <View style={styles.loaderContainer}>
+              <ActivityIndicator size="large" color='#B94EA0' />
+            </View>
+          </Modal>
+        :
+          (upcomingCompetitions.length > 0 ? (
           upcomingCompetitions.map(comp => (
             <TouchableOpacity
               key={comp.id}
@@ -108,7 +113,7 @@ const LiveComps = () => {
           <Text style={styles.noCompetitionsText}>
             No Active Competitions Available
           </Text>
-        )}
+        ))}
       </ScrollView>
     </View>
   );
@@ -117,6 +122,11 @@ const LiveComps = () => {
 const styles = StyleSheet.create({
   container: {
     padding: 10,
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   backButton: {
     padding: 15,
